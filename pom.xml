@@ -21,6 +21,7 @@
     <module>msvc-eureka</module>
     <module>msvc-config</module>
     <module>msvc-pedido</module>
+    <module>msvc-inventario</module>
     <module>msvc-authService</module>
   </modules>
 
