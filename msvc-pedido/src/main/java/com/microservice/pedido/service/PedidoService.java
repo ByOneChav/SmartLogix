@@ -20,28 +20,28 @@ public class PedidoService {
     private PedidoRepository pedidoRepository;
 
     /**
-     * Obtener todos los estudiantes
+     * Obtener todos los pedidos
      */
     public List<Pedido> findAll() {
         return (List<Pedido>) pedidoRepository.findAll();
     }
 
     /**
-     * Buscar estudiante por ID
+     * Buscar pedido por ID
      */
     public Pedido findById(Long id) {
         return pedidoRepository.findById(id).orElseThrow();
     }
 
     /**
-     * Guardar un estudiante
+     * Guardar un pedido
      */
     public void save(Pedido pedido) {
         pedidoRepository.save(pedido);
     }
 
     /**
-     * Buscar estudiantes por courseId
+     * Buscar pedidos por inventarioId
      */
     public List<Pedido> findByInventarioId(Long inventarioId) {
         return pedidoRepository.findAllByInventarioId(inventarioId);

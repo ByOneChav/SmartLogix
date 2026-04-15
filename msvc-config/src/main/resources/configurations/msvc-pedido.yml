@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 8082  # Puerto del microservicio pedido
 
 spring:
   application:
@@ -17,9 +17,16 @@ spring:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+# Registro en Eureka
 eureka:
   instance:
     hostname: localhost
+
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+# Swagger (opcional pero recomendado)
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
