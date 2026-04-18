@@ -3,3 +3,4 @@ spring:
     name: msvc-auth
   config:
     import: optional:configserver:http://msvc-config:8888
+

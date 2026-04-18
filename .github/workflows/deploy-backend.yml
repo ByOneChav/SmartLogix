@@ -10,7 +10,7 @@ on:
 
 jobs:
   detect-changes:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       auth: ${{ steps.filter.outputs.auth }}
       config: ${{ steps.filter.outputs.config }}
@@ -31,7 +31,7 @@ jobs:
   build-config:
     needs: detect-changes
     if: needs.detect-changes.outputs.config == 'true'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v3
@@ -48,7 +48,7 @@ jobs:
   build-eureka:
     needs: detect-changes
     if: needs.detect-changes.outputs.eureka == 'true'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v3
@@ -65,7 +65,7 @@ jobs:
   build-auth:
     needs: detect-changes
     if: needs.detect-changes.outputs.auth == 'true'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v3
