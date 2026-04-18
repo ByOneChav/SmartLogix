@@ -4,7 +4,7 @@ server:
 spring:
   application:
     name: msvc-auth
-
+#TODO Cambiar direccion de la BD
   datasource:
     url: jdbc:postgresql:http://msvc-config:5432/auth_db
     username: postgres
@@ -27,4 +27,4 @@ application:
 eureka:
   client:
     service-url:
-      defaultZone: http://msvc-config:8761/eureka
+      defaultZone: http://msvc-eureka:8761/eureka
