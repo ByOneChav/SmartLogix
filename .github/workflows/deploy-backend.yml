@@ -1,0 +1,58 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/msvc-authService/**'
+      - 'backend/msvc-config/**'
+      - 'backend/msvc-eureka/**'
+
+jobs:
+  build-config:
+    runs-on: ubuntu-latest
+    if: >
+      contains(toJSON(github.event.commits), 'backend/msvc-config')
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./backend/msvc-config
+          push: true
+          tags: lblackdev/smartlogix-config:latest
+
+  build-eureka:
+    runs-on: ubuntu-latest
+    if: >
+      contains(toJSON(github.event.commits), 'backend/msvc-eureka')
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./backend/msvc-eureka
+          push: true
+          tags: lblackdev/smartlogix-eureka:latest
+
+  build-auth:
+    runs-on: ubuntu-latest
+    if: >
+      contains(toJSON(github.event.commits), 'backend/msvc-authService')
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./backend/msvc-authService
+          push: true
+          tags: lblackdev/smartlogix-auth:latest
