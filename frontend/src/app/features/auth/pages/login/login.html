@@ -1,0 +1,19 @@
+<h2>Iniciar sesión</h2>
+
+<input
+  type="email"
+  [(ngModel)]="email"
+  placeholder="Correo"
+/>
+
+<input
+  type="password"
+  [(ngModel)]="password"
+  placeholder="Contraseña"
+/>
+
+<button (click)="login()" [disabled]="loading">
+  {{ loading ? 'Ingresando...' : 'Entrar' }}
+</button>
+
+<p *ngIf="error">{{ error }}</p>
