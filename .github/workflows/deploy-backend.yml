@@ -1,17 +1,15 @@
 name: Deploy Backend
 
 on:
-  workflow_dispatch:
-
-#on:
-#  push:
-#    branches: [ main, BlackDev, AlcindoDev ]
-#    paths:
-#      - 'backend/msvc-authService/**'
-#      - 'backend/msvc-config/**'
-#      - 'backend/msvc-eureka/**'
-#      - 'frontend/**'
-#      - 'backend/msvc-gateway/**'
+  push:
+    branches: [ main, BlackDev ]
+    paths:
+      - 'backend/msvc-authService/**'
+      - 'backend/msvc-config/**'
+      - 'backend/msvc-eureka/**'
+      - 'frontend/**'
+      - 'backend/msvc-gateway/**'
+    #TODO agregar ruta similar a las de arriba
 
 jobs:
   detect-changes:
@@ -22,6 +20,7 @@ jobs:
       eureka: ${{ steps.filter.outputs.eureka }}
       frontend: ${{ steps.filter.outputs.frontend }}
       gateway: ${{ steps.filter.outputs.gateway }}
+      #TODO agregar ruta similar a las de arriba
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
@@ -34,10 +33,11 @@ jobs:
               - 'backend/msvc-config/**'
             eureka:
               - 'backend/msvc-eureka/**'
-            frontend:
-              - 'frontend/**'
             gateway:
-              - 'backend/msvc-gateway/**'
+            - 'backend/msvc-gateway/**'
+            frontend:
+                - 'frontend/**'
+          #TODO agregar ruta similar a las de arriba
 
   build-config:
     needs: detect-changes
@@ -102,6 +102,13 @@ jobs:
           cd /home/ssm-user/smartlogix
           docker-compose up -d msvc-auth
 
+          #TODO agregar ruta similar a las de arriba por ejemplo el build-auth
+          #TODO repo faltantes por subir al dockerhub
+          #smartlogix-envio
+          #smartlogix-pedido
+          #smartlogix-inventario
+          
+
   build-gateway:
     needs: detect-changes
     if: needs.detect-changes.outputs.gateway == 'true'
@@ -135,3 +142,14 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: lblackdev/smartlogix-frontend:latest
+      - name: Deploy frontend
+        run: |
+          sudo docker stop smartlogix-frontend || true
+          sudo docker rm smartlogix-frontend || true
+          sudo docker pull lblackdev/smartlogix-frontend:latest
+          sudo docker run -d \
+            --name smartlogix-frontend \
+            -p 80:80 \
+            --restart unless-stopped \
+            lblackdev/smartlogix-frontend:latest
+
