@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiGatewayUrl: 'http://localhost:8080'
+  apiUrl: 'http://ec2-3-208-13-183.compute-1.amazonaws.com:8080'
 };
