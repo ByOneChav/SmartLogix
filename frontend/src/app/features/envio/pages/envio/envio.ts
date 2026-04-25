@@ -1,18 +1,18 @@
 import { Component } from "@angular/core";
-import {DashboardCard} from "../../components/dashboard-card/dashboard-card";
-import {DashboardTable} from "../../components/dashboard-table/dashboard-table";
+import {EnvioTable} from "../../components/envio-table/envio-table";
 
 @Component({
-  selector: "app-dashboard",
-  imports: [
-    DashboardCard, DashboardTable
-  ],
-  templateUrl: "./dashboard.html",
-  styleUrl: "./dashboard.css",
+  selector: "app-envio",
+    imports: [
+        EnvioTable
+    ],
+  templateUrl: "./envio.html",
+  styleUrl: "./envio.css",
 })
-export class Dashboard {
+export class Envio {
 
   columnas = ['ID', 'Cliente', 'Producto', 'Estado', 'Fecha'];
+
 
   pedidos = [
     { ID: '#001', Cliente: 'Juan Pérez', Producto: 'Laptop HP', Estado: 'Entregado', Fecha: '25/04/2026' },

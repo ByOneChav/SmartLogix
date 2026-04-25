@@ -30,16 +30,24 @@
 
 .logout-btn:hover {
     background-color: rgba(255,45,170, 0.15);
+    cursor: pointer;
 }
 
-::ng-deep .sidenav .mat-mdc-list-item:hover {
-    background-color: rgba(255, 45, 170, 0.15);
-    color: #FF2DAA;
+::ng-deep .sidenav .mat-mdc-list-item .mdc-list-item__primary-text {
+    color: #A8B3E6 !important;
 }
 
-::ng-deep .sidenav .active-link {
-    background-color: rgba(255, 45, 170, 0.2);
-    color: #FF2DAA;
+::ng-deep .sidenav .mat-mdc-list-item:hover .mdc-list-item__primary-text {
+    background-color: rgba(255, 45, 170, 0.15) !important;
+    color: #FF2DAA !important;
+}
+
+::ng-deep .sidenav .active-link .mdc-list-item__primary-text {
+    background-color: rgba(255, 45, 170, 0.2) !important;
+    color: #FF2DAA !important;
+    padding: 12px 3rem 12px 6px;
+    /*padding-right: 2rem;*/
+    border-radius: 30px;
 }
 
 .content {

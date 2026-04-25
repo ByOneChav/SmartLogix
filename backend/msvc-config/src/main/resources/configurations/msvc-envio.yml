@@ -4,22 +4,9 @@ server:
 spring:
   application:
     name: msvc-envio
-
-  datasource:
-    url: jdbc:postgresql://localhost:5432/envio_db
-    username: postgres
-    password: kalikali
-    driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
-      ddl-auto: create
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-
-eureka:
-  instance:
-    hostname: localhost
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
