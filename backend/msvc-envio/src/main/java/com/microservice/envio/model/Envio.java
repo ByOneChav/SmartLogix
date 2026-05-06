@@ -1,35 +1,76 @@
 package com.microservice.envio.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
-import java.time.LocalDateTime;
 
 /**
- * Entidad Envio.
- * Representa el despacho físico creado a partir de un Pedido confirmado.
- * Estado inicial: PREPARANDO → EN_TRANSITO → ENTREGADO (o DEVUELTO)
+ * Entidad que representa la tabla envio
  */
 @Entity
-@Table(name = "envio")
-@Data
+@Getter
+@Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "envio")
 public class Envio {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "pedido_id")
-    private Long pedidoId;
+    private String descripcion;
 
-    @Column(name = "direccion_destino")
-    private String direccionDestino;
+    @Column(name = "cantidad")
+    private Integer cantidad;
 
-    @Enumerated(EnumType.STRING)
-    private EstadoEnvio estado;
+    private Integer precio;
 
-    @Column(name = "fecha_envio")
-    private LocalDateTime fechaEnvio;
+    @Column(name = "inventario_id")
+    private Long inventarioId;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public Integer getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(Integer precio) {
+        this.precio = precio;
+    }
+
+    public Long getInventarioId() {
+        return inventarioId;
+    }
+
+    public void setInventarioId(Long inventarioId) {
+        this.inventarioId = inventarioId;
+    }
 }
