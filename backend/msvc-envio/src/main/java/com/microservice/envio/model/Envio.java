@@ -20,6 +20,7 @@ import lombok.*;
 @NoArgsConstructor
 @Table(name = "envio")
 public class Envio {
+    //#cambios
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
