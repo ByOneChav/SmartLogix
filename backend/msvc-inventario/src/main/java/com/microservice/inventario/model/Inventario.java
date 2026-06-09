@@ -45,4 +45,10 @@ public class Inventario {
     @Column(name = "stock_minimo")
     @Schema(description = "Stock mínimo de alerta. Se resalta en rojo cuando stock <= stockMinimo", example = "5")
     private Integer stockMinimo;
+
+    // Estado lógico — false indica que fue dado de baja (soft delete)
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
+    @Builder.Default
+    @Schema(description = "Estado del producto. false = dado de baja", example = "true")
+    private Boolean activo = true;
 }

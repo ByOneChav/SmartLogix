@@ -3,6 +3,7 @@ package com.microservice.envio.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.microservice.envio.dto.EnvioDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -44,25 +45,31 @@ public class EnvioService {
                 .orElseThrow(() -> new RuntimeException("Envio no encontrado con ID: " + id));
     }
 
-    public Envio crearEnvio(Envio envio) {
-        if (envio.getPedidoId() == null) {
+    public Envio crearEnvio(EnvioDTO dto) {
+        if (dto.getPedidoId() == null) {
             throw new RuntimeException("El pedidoId es obligatorio para crear un envio");
         }
-        if (envio.getDireccionDestino() == null || envio.getDireccionDestino().isBlank()) {
+        if (dto.getDireccionDestino() == null || dto.getDireccionDestino().isBlank()) {
             throw new RuntimeException("La dirección de destino es obligatoria");
         }
-        if (envioRepository.findByPedidoId(envio.getPedidoId()).isPresent()) {
-            throw new RuntimeException("Ya existe un envio para el pedido ID: " + envio.getPedidoId());
+        if (envioRepository.findByPedidoId(dto.getPedidoId()).isPresent()) {
+            throw new RuntimeException("Ya existe un envio para el pedido ID: " + dto.getPedidoId());
         }
-        envio.setEstado(EstadoEnvio.PREPARANDO);
-        envio.setFechaEnvio(LocalDateTime.now());
+
+        Envio envio = Envio.builder()
+                .pedidoId(dto.getPedidoId())
+                .direccionDestino(dto.getDireccionDestino())
+                .estado(EstadoEnvio.PREPARANDO)
+                .fechaEnvio(LocalDateTime.now())
+                .build();
+
         Envio guardado = envioRepository.save(envio);
 
         // Notificar al pedido que ya fue enviado
         try {
-            pedidoClient.cambiarEstado(envio.getPedidoId(), "ENVIADO");
+            pedidoClient.cambiarEstado(dto.getPedidoId(), "ENVIADO");
         } catch (Exception e) {
-            log.warn("No se pudo actualizar el estado del pedido {}: {}", envio.getPedidoId(), e.getMessage());
+            log.warn("No se pudo actualizar el estado del pedido {}: {}", dto.getPedidoId(), e.getMessage());
         }
 
         return guardado;

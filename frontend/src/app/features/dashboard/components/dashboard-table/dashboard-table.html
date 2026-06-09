@@ -18,16 +18,24 @@
                             <td>
                                 @if (col === 'Estado') {
                                     <span class="badge" [ngClass]="{
-                    'bg-success': fila[col] === 'Entregado',
-                    'bg-warning text-dark': fila[col] === 'En tránsito',
-                    'bg-primary': fila[col] === 'Preparando',
-                    'bg-danger': fila[col] === 'Cancelado'
+                    'bg-success': fila[col] === 'ENTREGADO',
+                    'bg-warning text-dark': fila[col] === 'PENDIENTE',
+                    'bg-info': fila[col] === 'CONFIRMADO',
+                    'bg-primary': fila[col] === 'EN_PREPARACION',
+                    'bg-secondary': fila[col] === 'ENVIADO',
+                    'bg-danger': fila[col] === 'CANCELADO'
                   }">{{ fila[col] }}</span>
                                 } @else {
                                     {{ fila[col] }}
                                 }
                             </td>
                         }
+                    </tr>
+                } @empty {
+                    <tr>
+                        <td [attr.colspan]="columnas.length" class="text-center text-muted py-4">
+                            No hay datos disponibles
+                        </td>
                     </tr>
                 }
             </tbody>

@@ -37,28 +37,32 @@ public class InventarioServiceTest {
                 .ubicacion("Bodega")
                 .stock(10)
                 .precio(500000)
+                .stockMinimo(5)
+                .activo(true)
                 .build();
     }
 
-    // 1. Listar
+    // 1. Listar (solo activos)
     @Test
     void testFindAll() {
-        when(repository.findAll()).thenReturn(List.of(inventario));
+        when(repository.findByActivoTrue()).thenReturn(List.of(inventario));
 
         List<Inventario> lista = service.findAll();
 
         assertEquals(1, lista.size());
-        verify(repository).findAll();
+        assertEquals("Laptop", lista.get(0).getNombreProducto());
+        verify(repository).findByActivoTrue();
     }
 
-    // 2. Buscar por ID
+    // 2. Buscar por ID (solo activos)
     @Test
     void testFindById() {
-        when(repository.findById(1L)).thenReturn(Optional.of(inventario));
+        when(repository.findByIdAndActivoTrue(1L)).thenReturn(Optional.of(inventario));
 
         Inventario result = service.findById(1L);
 
         assertEquals("Laptop", result.getNombreProducto());
+        verify(repository).findByIdAndActivoTrue(1L);
     }
 
     // 3. Guardar
@@ -69,41 +73,65 @@ public class InventarioServiceTest {
         Inventario result = service.save(inventario);
 
         assertEquals(1L, result.getId());
+        verify(repository).save(inventario);
     }
 
     // 4. Actualizar
     @Test
     void testUpdate() {
-        when(repository.findById(1L)).thenReturn(Optional.of(inventario));
+        when(repository.findByIdAndActivoTrue(1L)).thenReturn(Optional.of(inventario));
         when(repository.save(any())).thenReturn(inventario);
 
         Inventario actualizado = service.update(1L, inventario);
 
         assertEquals("Laptop", actualizado.getNombreProducto());
+        verify(repository).save(any());
     }
 
-    // 5. Eliminar
+    // 5. Baja lógica (desactivar)
     @Test
-    void testDelete() {
-        doNothing().when(repository).deleteById(1L);
+    void testDesactivar() {
+        when(repository.findByIdAndActivoTrue(1L)).thenReturn(Optional.of(inventario));
+        when(repository.save(any())).thenReturn(inventario);
 
-        service.delete(1L);
+        service.desactivar(1L);
 
-        verify(repository).deleteById(1L);
+        assertFalse(inventario.getActivo());
+        verify(repository).save(inventario);
     }
 
     // 6. Error cuando no existe
     @Test
     void testFindByIdNotFound() {
-        when(repository.findById(1L)).thenReturn(Optional.empty());
+        when(repository.findByIdAndActivoTrue(1L)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> service.findById(1L));
     }
 
-    // 7. Integración con pedido
+    // 7. Descontar stock
+    @Test
+    void testDescontarStock() {
+        when(repository.findByIdAndActivoTrue(1L)).thenReturn(Optional.of(inventario));
+        when(repository.save(any())).thenReturn(inventario);
+
+        Inventario result = service.descontarStock(1L, 3);
+
+        assertEquals(7, inventario.getStock());
+        verify(repository).save(any());
+    }
+
+    // 8. Descontar stock insuficiente
+    @Test
+    void testDescontarStockInsuficiente() {
+        when(repository.findByIdAndActivoTrue(1L)).thenReturn(Optional.of(inventario));
+
+        assertThrows(RuntimeException.class, () -> service.descontarStock(1L, 100));
+    }
+
+    // 9. Integración con pedido
     @Test
     void testFindPedidos() {
-        when(repository.findById(1L)).thenReturn(Optional.of(inventario));
+        when(repository.findByIdAndActivoTrue(1L)).thenReturn(Optional.of(inventario));
         when(pedidoClient.findAllProductoByInventario(1L)).thenReturn(new ArrayList<>());
 
         var response = service.findPedidosByInventarioId(1L);

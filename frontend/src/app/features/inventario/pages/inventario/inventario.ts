@@ -88,7 +88,9 @@ export class InventarioComponent implements OnInit {
   eliminar(id: number): void {
     if (!confirm('¿Eliminar este producto del inventario?')) return;
     this.inventarioService.delete(id).subscribe({
-      next: () => this.cargarInventario(),
+      next: () => {
+        this.inventarios = this.inventarios.filter(i => i.id !== id);
+      },
       error: () => this.error = 'Error al eliminar'
     });
   }

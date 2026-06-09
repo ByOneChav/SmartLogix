@@ -103,21 +103,21 @@ public class InventarioController {
     }
 
     /**
-     * ELIMINAR INVENTARIO
+     * BAJA LÓGICA DE INVENTARIO
      */
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar inventario", description = "Elimina un producto del inventario utilizando su ID.")
-    @Parameter(name = "id", description = "ID del inventario a eliminar", required = true, in = ParameterIn.PATH)
+    @Operation(summary = "Dar de baja inventario", description = "Desactiva un producto del inventario (baja lógica). El registro se conserva en base de datos con activo=false.")
+    @Parameter(name = "id", description = "ID del inventario a desactivar", required = true, in = ParameterIn.PATH)
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Inventario eliminado correctamente"),
+            @ApiResponse(responseCode = "200", description = "Inventario dado de baja correctamente"),
             @ApiResponse(responseCode = "404", description = "Inventario no encontrado")
     })
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> desactivar(@PathVariable Long id) {
         try {
-            inventarioService.delete(id);
-            return ResponseEntity.ok("Eliminado correctamente");
+            inventarioService.desactivar(id);
+            return ResponseEntity.ok("Inventario dado de baja correctamente");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No existe");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Inventario no encontrado");
         }
     }
 
