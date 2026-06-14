@@ -24,3 +24,7 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: http://msvc-eureka:8761/eureka
+
+app:
+  cors:
+    allowed-origins: "*"
