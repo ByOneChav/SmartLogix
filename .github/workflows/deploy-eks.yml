@@ -153,7 +153,8 @@ jobs:
           kubectl apply -f backend/k8s/frontend-service.yaml
 
       - name: Deploy HPAs (Autoscaling)
-        run: kubectl apply -f backend/k8s/hpa-*.yaml
+        run: |
+          for f in backend/k8s/hpa-*.yaml; do kubectl apply -f "$f"; done
 
       - name: Deploy Metrics Server
         run: kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
