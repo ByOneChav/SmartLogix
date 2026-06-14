@@ -3,8 +3,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
 spec:
+  storageClassName: gp2
   accessModes:
-    - ReadWriteOnce          # solo un nodo puede leer/escribir a la vez (normal para DB)
+    - ReadWriteOnce
   resources:
     requests:
       storage: 5Gi           # 5GB de disco
