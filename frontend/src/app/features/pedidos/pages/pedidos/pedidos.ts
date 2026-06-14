@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
@@ -34,8 +34,7 @@ export class PedidosComponent implements OnInit {
 
   constructor(
     private pedidoService: PedidoService,
-    private inventarioService: InventarioService,
-    private cd: ChangeDetectorRef
+    private inventarioService: InventarioService
   ) {}
 
   ngOnInit(): void {
@@ -44,20 +43,19 @@ export class PedidosComponent implements OnInit {
 
   cargarDatos(): void {
     this.cargandoLista = true;
-    this.pedidoService.getAll().pipe(finalize(() => this.cargandoLista = false)).subscribe({
+    this.pedidoService.getAll().subscribe({
       next: data => {
         this.pedidos = Array.isArray(data) ? data : [];
-        this.cd.detectChanges();
+        this.cargandoLista = false;
       },
       error: () => {
         this.pedidos = [];
-        this.cd.detectChanges();
+        this.cargandoLista = false;
       }
     });
     this.inventarioService.getAll().subscribe({
       next: data => {
-        this.inventarios = data;
-        this.cd.detectChanges();
+        this.inventarios = data ?? [];
       },
       error: () => this.inventarios = []
     });
@@ -86,8 +84,8 @@ export class PedidosComponent implements OnInit {
     this.pedidoService.create(this.nuevo).pipe(finalize(() => this.loading = false)).subscribe({
       next: pedido => {
         this.success = `Pedido #${pedido.id} creado. Stock descontado automáticamente.`;
-        this.cargarDatos();
         this.resetFormulario();
+        this.cargarDatos();
       },
       error: e => {
         this.error = e.error || 'Error al crear pedido. Verifique el stock disponible.';
@@ -99,7 +97,10 @@ export class PedidosComponent implements OnInit {
     const siguiente = this.getSiguienteEstado(pedido.estado!);
     if (!siguiente) return;
     this.pedidoService.cambiarEstado(pedido.id!, siguiente).subscribe({
-      next: () => { this.cargarDatos(); this.success = ''; },
+      next: () => {
+        this.success = '';
+        this.cargarDatos();
+      },
       error: () => this.error = 'Error al cambiar estado'
     });
   }
@@ -124,8 +125,6 @@ export class PedidosComponent implements OnInit {
     const flujo: Partial<Record<EstadoPedido, EstadoPedido>> = {
       'PENDIENTE': 'CONFIRMADO',
       'CONFIRMADO': 'EN_PREPARACION'
-      // EN_PREPARACION → ENVIADO lo hace envio al crear el despacho
-      // ENVIADO → ENTREGADO lo hace envio al marcar como entregado
     };
     return flujo[estado] ?? null;
   }

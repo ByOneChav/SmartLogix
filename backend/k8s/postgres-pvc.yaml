@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce          # solo un nodo puede leer/escribir a la vez (normal para DB)
+  resources:
+    requests:
+      storage: 5Gi           # 5GB de disco

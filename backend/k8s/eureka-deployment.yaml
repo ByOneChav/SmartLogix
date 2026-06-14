@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: msvc-eureka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: msvc-eureka
+  template:
+    metadata:
+      labels:
+        app: msvc-eureka
+    spec:
+      containers:
+        - name: msvc-eureka
+          image: <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/smartlogix/msvc-eureka:latest
+          ports:
+            - containerPort: 8761
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "k8s"
+            - name: CONFIG_SERVER_URL
+              value: "http://msvc-config:8888"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8761
+            initialDelaySeconds: 30
+            periodSeconds: 10

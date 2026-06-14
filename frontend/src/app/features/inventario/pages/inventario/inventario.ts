@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
@@ -30,8 +30,7 @@ export class InventarioComponent implements OnInit {
   cargandoLista = true;
   error = '';
 
-  constructor(private inventarioService: InventarioService,
-              private cd: ChangeDetectorRef) {}
+  constructor(private inventarioService: InventarioService) {}
 
   ngOnInit(): void {
     this.cargarInventario();
@@ -42,15 +41,13 @@ export class InventarioComponent implements OnInit {
 
     this.inventarioService.getAll().subscribe({
       next: data => {
-        this.inventarios = data;
+        this.inventarios = data ?? [];
         this.cargandoLista = false;
-        this.cd.detectChanges();
       },
       error: () => {
         this.inventarios = [];
         this.error = 'Error al cargar inventario';
         this.cargandoLista = false;
-        this.cd.detectChanges();
       }
     });
   }
@@ -65,8 +62,8 @@ export class InventarioComponent implements OnInit {
 
     op.pipe(finalize(() => this.loading = false)).subscribe({
       next: () => {
-        this.cargarInventario();
         this.resetFormulario();
+        this.cargarInventario();
       },
       error: () => {
         this.error = 'Error al guardar producto';
@@ -88,9 +85,7 @@ export class InventarioComponent implements OnInit {
   eliminar(id: number): void {
     if (!confirm('¿Eliminar este producto del inventario?')) return;
     this.inventarioService.delete(id).subscribe({
-      next: () => {
-        this.inventarios = this.inventarios.filter(i => i.id !== id);
-      },
+      next: () => this.cargarInventario(),
       error: () => this.error = 'Error al eliminar'
     });
   }

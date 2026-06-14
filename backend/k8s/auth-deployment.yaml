@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: msvc-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: msvc-auth
+  template:
+    metadata:
+      labels:
+        app: msvc-auth
+    spec:
+      containers:
+        - name: msvc-auth
+          image: <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/smartlogix/msvc-authservice:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "k8s"
+            - name: CONFIG_SERVER_URL
+              value: "http://msvc-config:8888"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DB_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: JWT_SECRET
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 40
+            periodSeconds: 10
+          resources: # METRICAS
+            requests:
+              cpu: 200m          # solicita 0.2 CPU (200 milicores)
+              memory: 256Mi      # solicita 256MB RAM
+            limits:
+              cpu: 500m          # máximo 0.5 CPU
+              memory: 512Mi      # máximo 512MB
