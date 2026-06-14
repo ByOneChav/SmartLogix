@@ -159,6 +159,19 @@ jobs:
       - name: Deploy Metrics Server
         run: kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 
+      # Actualizar imagen de cada deployment al commit SHA actual
+      # K8s detecta el cambio de tag y reinicia SOLO los pods que cambiaron
+      - name: Actualizar imagenes con commit SHA
+        run: |
+          kubectl set image deployment/msvc-config msvc-config=${{ env.ECR_REGISTRY }}/smartlogix/msvc-config:${{ github.sha }}
+          kubectl set image deployment/msvc-eureka msvc-eureka=${{ env.ECR_REGISTRY }}/smartlogix/msvc-eureka:${{ github.sha }}
+          kubectl set image deployment/msvc-auth msvc-auth=${{ env.ECR_REGISTRY }}/smartlogix/msvc-authservice:${{ github.sha }}
+          kubectl set image deployment/msvc-pedido msvc-pedido=${{ env.ECR_REGISTRY }}/smartlogix/msvc-pedido:${{ github.sha }}
+          kubectl set image deployment/msvc-inventario msvc-inventario=${{ env.ECR_REGISTRY }}/smartlogix/msvc-inventario:${{ github.sha }}
+          kubectl set image deployment/msvc-envio msvc-envio=${{ env.ECR_REGISTRY }}/smartlogix/msvc-envio:${{ github.sha }}
+          kubectl set image deployment/msvc-gateway msvc-gateway=${{ env.ECR_REGISTRY }}/smartlogix/msvc-gateway:${{ github.sha }}
+          kubectl set image deployment/frontend frontend=${{ env.ECR_REGISTRY }}/smartlogix/frontend:${{ github.sha }}
+
       # Verificación final
       - name: Verificar despliegue
         run: |

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
@@ -34,7 +34,8 @@ export class PedidosComponent implements OnInit {
 
   constructor(
     private pedidoService: PedidoService,
-    private inventarioService: InventarioService
+    private inventarioService: InventarioService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -47,17 +48,20 @@ export class PedidosComponent implements OnInit {
       next: data => {
         this.pedidos = Array.isArray(data) ? data : [];
         this.cargandoLista = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.pedidos = [];
         this.cargandoLista = false;
+        this.cdr.detectChanges();
       }
     });
     this.inventarioService.getAll().subscribe({
       next: data => {
         this.inventarios = data ?? [];
+        this.cdr.detectChanges();
       },
-      error: () => this.inventarios = []
+      error: () => { this.inventarios = []; this.cdr.detectChanges(); }
     });
   }
 

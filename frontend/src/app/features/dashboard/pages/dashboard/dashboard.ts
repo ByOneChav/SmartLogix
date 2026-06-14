@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DashboardCard } from '../../components/dashboard-card/dashboard-card';
 import { DashboardTable } from '../../components/dashboard-table/dashboard-table';
 import { PedidoService } from '../../../pedidos/services/pedido.service';
@@ -24,7 +24,8 @@ export class Dashboard implements OnInit {
   constructor(
     private pedidoService: PedidoService,
     private inventarioService: InventarioService,
-    private envioService: EnvioService
+    private envioService: EnvioService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -40,28 +41,34 @@ export class Dashboard implements OnInit {
           'Precio': `$${p.precio ?? 0}`,
           'Estado': p.estado
         }));
+        this.cdr.detectChanges();
       },
       error: () => {
         this.pedidos = [];
         this.totalPedidos = '0';
+        this.cdr.detectChanges();
       }
     });
 
     this.inventarioService.getAll().subscribe({
       next: data => {
         this.totalInventario = String((data ?? []).length);
+        this.cdr.detectChanges();
       },
       error: () => {
         this.totalInventario = '0';
+        this.cdr.detectChanges();
       }
     });
 
     this.envioService.getAll().subscribe({
       next: data => {
         this.totalEnvios = String(data.length);
+        this.cdr.detectChanges();
       },
       error: () => {
         this.totalEnvios = '0';
+        this.cdr.detectChanges();
       }
     });
   }
