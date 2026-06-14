@@ -27,8 +27,7 @@ spec:
               mountPath: /docker-entrypoint-initdb.d   # PostgreSQL ejecuta todo .sql aquí al arrancar
       volumes:
         - name: postgres-data
-          persistentVolumeClaim:
-            claimName: postgres-pvc
+          emptyDir: {}
         - name: init-script
           configMap:
             name: postgres-init        # monta el ConfigMap como archivo
