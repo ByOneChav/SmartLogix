@@ -18,7 +18,7 @@ RUN mvn dependency:go-offline -B
 
 #Copia el codigo fuente y compila
 COPY msvc-pedido/src ./src
-RUN mvn clean package -DskipTest -B
+RUN mvn clean package -DskipTests -B
 # Genera el .jar ejecutable. -DskipTests porque los tests
 # ya se corrieron antes (en CI), aquí solo queremos el .jar
 
