@@ -85,7 +85,7 @@ jobs:
           tags: |                               # una imagen puede tener varios "alias"
             ${{ env.ECR_REGISTRY }}/smartlogix/${{ matrix.service }}:latest
             ${{ env.ECR_REGISTRY }}/smartlogix/${{ matrix.service }}:${{ github.sha }}
-            # "latest"        → siempre la versión más reciente
+            # latest        → siempre la versión más reciente
             # "${{ github.sha }}" → hash exacto del commit, para trazabilidad y rollback
 
   # ============================================
