@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.microservice.envio.dto.EnvioDTO;
 import com.microservice.envio.model.Envio;
 import com.microservice.envio.model.EstadoEnvio;
 import com.microservice.envio.service.EnvioService;
@@ -54,7 +55,7 @@ public class EnvioController {
         @ApiResponse(responseCode = "201", description = "Envío creado correctamente"),
         @ApiResponse(responseCode = "400", description = "Pedido inválido o ya tiene envío")
     })
-    public ResponseEntity<?> crearEnvio(@RequestBody Envio envio) {
+    public ResponseEntity<?> crearEnvio(@RequestBody EnvioDTO envio) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(envioService.crearEnvio(envio));

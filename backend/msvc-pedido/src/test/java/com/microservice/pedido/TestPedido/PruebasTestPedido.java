@@ -3,10 +3,12 @@ package com.microservice.pedido.TestPedido;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.microservice.pedido.client.InventarioClient;
+import com.microservice.pedido.model.EstadoPedido;
 import com.microservice.pedido.model.Pedido;
 import com.microservice.pedido.repository.PedidoRepository;
 import com.microservice.pedido.service.PedidoService;
@@ -24,17 +26,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class PruebasTestPedido {
 
-    /**
-     * Simulación del repositorio (mock)
-     * No accede a base de datos real
-     */
     @Mock
     private PedidoRepository pedidoRepository;
 
-    /**
-     * Inyección del mock dentro del servicio
-     * Mockito crea una instancia real del service pero con el repo simulado
-     */
+    @Mock
+    private InventarioClient inventarioClient;
+
     @InjectMocks
     private PedidoService pedidoService;
 
@@ -43,20 +40,23 @@ public class PruebasTestPedido {
      */
     @Test
     public void testFindAll() {
+        Pedido p = Pedido.builder()
+                .id(1L)
+                .clienteNombre("Juan Pérez")
+                .descripcion("Compra PC")
+                .cantidad(2)
+                .precio(500000)
+                .inventarioId(10L)
+                .estado(EstadoPedido.PENDIENTE)
+                .fechaPedido(LocalDateTime.now())
+                .build();
 
-        // Simulamos lista de pedidos
-        List<Pedido> lista = new ArrayList<>();
-        Pedido p = new Pedido(1L, "Compra PC", 2, 500000, 10L);
-        lista.add(p);
+        when(pedidoRepository.findAll()).thenReturn(List.of(p));
 
-        // Definimos comportamiento del mock
-        when(pedidoRepository.findAll()).thenReturn(lista);
-
-        // Ejecutamos método del service
         List<Pedido> resultado = pedidoService.findAll();
 
-        // Validaciones
         assertEquals(1, resultado.size());
+        assertEquals("Compra PC", resultado.get(0).getDescripcion());
         verify(pedidoRepository, times(1)).findAll();
     }
 
@@ -65,17 +65,23 @@ public class PruebasTestPedido {
      */
     @Test
     public void testFindById() {
+        Pedido p = Pedido.builder()
+                .id(1L)
+                .clienteNombre("Juan Pérez")
+                .descripcion("Compra PC")
+                .cantidad(2)
+                .precio(500000)
+                .inventarioId(10L)
+                .estado(EstadoPedido.PENDIENTE)
+                .build();
 
-        Pedido p = new Pedido(1L, "Compra PC", 2, 500000, 10L);
-
-        // Simulación de respuesta del repositorio
         when(pedidoRepository.findById(1L)).thenReturn(Optional.of(p));
 
         Pedido resultado = pedidoService.findById(1L);
 
-        // Validaciones
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
+        assertEquals("Juan Pérez", resultado.getClienteNombre());
         verify(pedidoRepository).findById(1L);
     }
 
@@ -84,75 +90,73 @@ public class PruebasTestPedido {
      */
     @Test
     public void testFindByIdNotFound() {
-
-        // Simulamos que no existe
         when(pedidoRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Validamos que lanza excepción
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             pedidoService.findById(99L);
         });
 
-        assertEquals("Pedido no encontrado", exception.getMessage());
-
+        assertEquals("Pedido no encontrado con ID: 99", exception.getMessage());
         verify(pedidoRepository).findById(99L);
     }
 
     /**
-     * TEST 4: Guardar pedido
-     */
-    @Test
-    public void testSave() {
-
-        Pedido p = new Pedido(1L, "Compra PC", 2, 500000, 10L);
-
-        // Simulación de guardado
-        when(pedidoRepository.save(p)).thenReturn(p);
-
-        Pedido resultado = pedidoService.save(p);
-
-        // Validaciones
-        assertNotNull(resultado);
-        assertEquals("Compra PC", resultado.getDescripcion());
-
-        verify(pedidoRepository).save(p);
-    }
-
-    /**
-     * TEST 5: Eliminar pedido
+     * TEST 4: Eliminar pedido
      */
     @Test
     public void testDelete() {
-
         Long id = 1L;
-
-        // Simulación de eliminación (void)
         doNothing().when(pedidoRepository).deleteById(id);
 
-        // Ejecutamos
         pedidoService.delete(id);
 
-        // Verificamos que se llamó correctamente
         verify(pedidoRepository, times(1)).deleteById(id);
     }
 
     /**
-     * TEST 6: Buscar pedidos por inventarioId
+     * TEST 5: Buscar pedidos por inventarioId
      */
     @Test
     public void testFindByInventarioId() {
+        Pedido p = Pedido.builder()
+                .id(1L)
+                .clienteNombre("Juan Pérez")
+                .descripcion("Compra PC")
+                .cantidad(2)
+                .precio(500000)
+                .inventarioId(10L)
+                .estado(EstadoPedido.PENDIENTE)
+                .build();
 
-        List<Pedido> lista = new ArrayList<>();
-        Pedido p = new Pedido(1L, "Compra PC", 2, 500000, 10L);
-        lista.add(p);
-
-        // Simulación
-        when(pedidoRepository.findAllByInventarioId(10L)).thenReturn(lista);
+        when(pedidoRepository.findAllByInventarioId(10L)).thenReturn(List.of(p));
 
         List<Pedido> resultado = pedidoService.findByInventarioId(10L);
 
-        // Validaciones
         assertEquals(1, resultado.size());
         verify(pedidoRepository).findAllByInventarioId(10L);
+    }
+
+    /**
+     * TEST 6: Cambiar estado de pedido
+     */
+    @Test
+    public void testCambiarEstado() {
+        Pedido p = Pedido.builder()
+                .id(1L)
+                .clienteNombre("Juan Pérez")
+                .descripcion("Compra PC")
+                .cantidad(2)
+                .precio(500000)
+                .inventarioId(10L)
+                .estado(EstadoPedido.PENDIENTE)
+                .build();
+
+        when(pedidoRepository.findById(1L)).thenReturn(Optional.of(p));
+        when(pedidoRepository.save(any(Pedido.class))).thenReturn(p);
+
+        Pedido resultado = pedidoService.cambiarEstado(1L, EstadoPedido.CONFIRMADO);
+
+        assertNotNull(resultado);
+        verify(pedidoRepository).save(any(Pedido.class));
     }
 }

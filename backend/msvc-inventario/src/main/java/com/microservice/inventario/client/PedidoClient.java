@@ -9,7 +9,7 @@ import com.microservice.inventario.dto.PedidoDTO;
 /**
  * Cliente Feign para comunicarse con microservicio student
  */
-@FeignClient(name = "msvc-pedido")
+@FeignClient(name = "msvc-pedido", url = "${msvc-pedido.url:}")
 public interface PedidoClient {
 
     /**

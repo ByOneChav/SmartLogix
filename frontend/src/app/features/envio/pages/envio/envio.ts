@@ -32,7 +32,7 @@ export class EnvioComponent implements OnInit {
   constructor(
     private envioService: EnvioService,
     private pedidoService: PedidoService,
-    private cd: ChangeDetectorRef
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -41,14 +41,16 @@ export class EnvioComponent implements OnInit {
 
   cargarDatos(): void {
     this.cargandoLista = true;
-    this.envioService.getAll().pipe(finalize(() => this.cargandoLista = false)).subscribe({
+    this.envioService.getAll().subscribe({
       next: data => {
         this.envios = Array.isArray(data) ? data : [];
-        this.cd.detectChanges();
+        this.cargandoLista = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.envios = [];
-        this.cd.detectChanges();
+        this.cargandoLista = false;
+        this.cdr.detectChanges();
       }
     });
     this.pedidoService.getAll().subscribe({
@@ -56,9 +58,9 @@ export class EnvioComponent implements OnInit {
         this.pedidosDisponibles = Array.isArray(data)
           ? data.filter(p => p.estado === 'CONFIRMADO' || p.estado === 'EN_PREPARACION')
           : [];
-        this.cd.detectChanges();
+        this.cdr.detectChanges();
       },
-      error: () => this.pedidosDisponibles = []
+      error: () => { this.pedidosDisponibles = []; this.cdr.detectChanges(); }
     });
   }
 
@@ -70,8 +72,8 @@ export class EnvioComponent implements OnInit {
     this.envioService.create(this.nuevo).pipe(finalize(() => this.loading = false)).subscribe({
       next: envio => {
         this.success = `Envío #${envio.id} creado para pedido #${envio.pedidoId}`;
-        this.cargarDatos();
         this.resetFormulario();
+        this.cargarDatos();
       },
       error: e => {
         this.error = e.error || 'Error al crear envío. Verifique el ID del pedido.';
@@ -83,7 +85,10 @@ export class EnvioComponent implements OnInit {
     const siguiente = this.getSiguienteEstado(envio.estado!);
     if (!siguiente) return;
     this.envioService.cambiarEstado(envio.id!, siguiente).subscribe({
-      next: () => { this.cargarDatos(); this.success = ''; },
+      next: () => {
+        this.success = '';
+        this.cargarDatos();
+      },
       error: () => this.error = 'Error al cambiar estado'
     });
   }

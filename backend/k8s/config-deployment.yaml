@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: msvc-config
+spec:
+  replicas: 1                          # 1 réplica — config-server no necesita escalar
+  selector:
+    matchLabels:
+      app: msvc-config
+  template:
+    metadata:
+      labels:
+        app: msvc-config
+    spec:
+      containers:
+        - name: msvc-config
+          image: <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/smartlogix/msvc-config:latest
+          ports:
+            - containerPort: 8888
+          readinessProbe:              # K8s verifica si el servicio está listo
+            httpGet:
+              path: /actuator/health
+              port: 8888
+            initialDelaySeconds: 30    # espera 30s antes de chequear (Java tarda en arrancar)
+            periodSeconds: 10          # chequea cada 10s

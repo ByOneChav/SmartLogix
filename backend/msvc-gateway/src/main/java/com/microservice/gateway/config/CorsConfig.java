@@ -7,6 +7,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 
+import java.util.Arrays;
+
 /**
  * Configuración CORS para el API Gateway
  * Permite que Swagger (u otros clientes) puedan consumir los endpoints
@@ -23,14 +25,9 @@ public class CorsConfig {
         // Configuración CORS
         CorsConfiguration config = new CorsConfiguration();
 
-        // 🔥 Permitir Swagger (puerto 8082)
-//        config.addAllowedOrigin("http://localhost:8081");
-//        config.addAllowedOrigin("http://localhost:8082");
-//        config.addAllowedOrigin("http://localhost:8083");
-//        config.addAllowedOrigin("http://localhost:8084");
-        config.addAllowedOrigin(allowedOrigins);
-        // (opcional pero útil en desarrollo)
-//        config.addAllowedOrigin("http://localhost:8080");
+        Arrays.stream(allowedOrigins.split(","))
+              .map(String::trim)
+              .forEach(config::addAllowedOrigin);
 
         // Permitir todos los métodos HTTP
         config.addAllowedMethod("*");

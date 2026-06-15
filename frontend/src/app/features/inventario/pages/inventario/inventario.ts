@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef} from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
@@ -30,8 +30,7 @@ export class InventarioComponent implements OnInit {
   cargandoLista = true;
   error = '';
 
-  constructor(private inventarioService: InventarioService,
-              private cd: ChangeDetectorRef) {}
+  constructor(private inventarioService: InventarioService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.cargarInventario();
@@ -42,15 +41,15 @@ export class InventarioComponent implements OnInit {
 
     this.inventarioService.getAll().subscribe({
       next: data => {
-        this.inventarios = data;
+        this.inventarios = data ?? [];
         this.cargandoLista = false;
-        this.cd.detectChanges();
+        this.cdr.detectChanges();
       },
       error: () => {
         this.inventarios = [];
         this.error = 'Error al cargar inventario';
         this.cargandoLista = false;
-        this.cd.detectChanges();
+        this.cdr.detectChanges();
       }
     });
   }
@@ -65,8 +64,8 @@ export class InventarioComponent implements OnInit {
 
     op.pipe(finalize(() => this.loading = false)).subscribe({
       next: () => {
-        this.cargarInventario();
         this.resetFormulario();
+        this.cargarInventario();
       },
       error: () => {
         this.error = 'Error al guardar producto';

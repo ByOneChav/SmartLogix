@@ -25,14 +25,14 @@ public class InventarioService {
         this.pedidoClient = pedidoClient;
     }
 
-    // Obtener todos los registros
+    // Obtener solo registros activos
     public List<Inventario> findAll() {
-        return inventarioRepository.findAll();
+        return inventarioRepository.findByActivoTrue();
     }
 
-    // Buscar por ID
+    // Buscar por ID (solo activos)
     public Inventario findById(Long id) {
-        return inventarioRepository.findById(id)
+        return inventarioRepository.findByIdAndActivoTrue(id)
                 .orElseThrow(() -> new RuntimeException("Inventario no encontrado"));
     }
 
@@ -67,9 +67,11 @@ public class InventarioService {
         return inventarioRepository.save(inventario);
     }
 
-    // Eliminar inventario
-    public void delete(Long id) {
-        inventarioRepository.deleteById(id);
+    // Baja lógica — no elimina el registro, cambia activo a false
+    public void desactivar(Long id) {
+        Inventario inventario = findById(id);
+        inventario.setActivo(false);
+        inventarioRepository.save(inventario);
     }
 
     // Consumir microservicio pedido

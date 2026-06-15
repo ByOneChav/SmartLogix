@@ -2,6 +2,7 @@ package com.microservice.authservice.service;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -13,11 +14,14 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    // 🔐 Clave secreta (mínimo 256 bits)
-    private final String SECRET = "my-super-secret-key-that-is-very-long-123456";
+    @Value("${application.security.jwt.secret-key:my-super-secret-key-that-is-very-long-123456}")
+    private String secret;
+
+    @Value("${application.security.jwt.expiration:86400000}")
+    private long expiration;
 
     private Key getKey() {
-        return Keys.hmacShaKeyFor(SECRET.getBytes());
+        return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     // Generar token
@@ -25,7 +29,7 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

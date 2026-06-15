@@ -25,7 +25,7 @@ export class Dashboard implements OnInit {
     private pedidoService: PedidoService,
     private inventarioService: InventarioService,
     private envioService: EnvioService,
-    private cd: ChangeDetectorRef
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -41,37 +41,34 @@ export class Dashboard implements OnInit {
           'Precio': `$${p.precio ?? 0}`,
           'Estado': p.estado
         }));
-        this.cd.detectChanges();
+        this.cdr.detectChanges();
       },
-      error: err => {
-        console.log(err);
+      error: () => {
         this.pedidos = [];
         this.totalPedidos = '0';
-        this.cd.detectChanges();
+        this.cdr.detectChanges();
       }
     });
 
     this.inventarioService.getAll().subscribe({
       next: data => {
-        const lista = data ?? [];
-        this.totalInventario = String(lista.length);
-        this.cd.detectChanges();
+        this.totalInventario = String((data ?? []).length);
+        this.cdr.detectChanges();
       },
-      error: err => {
-        console.log(err);
+      error: () => {
         this.totalInventario = '0';
-        this.cd.detectChanges();
+        this.cdr.detectChanges();
       }
     });
 
     this.envioService.getAll().subscribe({
       next: data => {
         this.totalEnvios = String(data.length);
-        this.cd.detectChanges();
+        this.cdr.detectChanges();
       },
       error: () => {
         this.totalEnvios = '0';
-        this.cd.detectChanges();
+        this.cdr.detectChanges();
       }
     });
   }
