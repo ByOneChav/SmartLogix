@@ -183,3 +183,4 @@ jobs:
           kubectl get hpa
           echo "=== FRONTEND URL ==="
           kubectl get svc frontend -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+          
