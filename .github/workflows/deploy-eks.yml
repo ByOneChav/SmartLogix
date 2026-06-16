@@ -12,7 +12,7 @@ on:
 env:                                    # Variables disponibles en TODOS los jobs/steps
   AWS_REGION: us-east-1
   EKS_CLUSTER: smartlogix-cluster       # Nombre del cluster al que se conecta
-  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID_ALCINDODEV }}.dkr.ecr.us-east-1.amazonaws.com
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
                                         # URL base de tu registro ECR, armada con el AWS_ACCOUNT_ID
                                         # guardado como secret de GitHub
 
@@ -61,9 +61,9 @@ jobs:
       - name: Configurar AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ALCINDODEV }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ALCINDODEV }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN_ALCINDODEV }}     # necesario porque son credenciales temporales (STS)
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}     # necesario porque son credenciales temporales (STS)
           aws-region: ${{ env.AWS_REGION }}
           # Configura variables de entorno AWS_* para que todo lo que corra después
           # (CLI, SDKs) use estas credenciales automáticamente
@@ -101,9 +101,9 @@ jobs:
       - name: Configurar AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ALCINDODEV }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ALCINDODEV }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN_ALCINDODEV }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
           # Mismas credenciales que en Job 1 — cada job las necesita por separado
 
@@ -117,7 +117,7 @@ jobs:
       # Reemplazar <ACCOUNT_ID> en los manifiestos con el valor real
       - name: Actualizar manifiestos con Account ID
         run: |
-          sed -i "s|<ACCOUNT_ID>|${{ secrets.AWS_ACCOUNT_ID-AlcindoDev }}|g" backend/k8s/*.yaml
+          sed -i "s|<ACCOUNT_ID>|${{ secrets.AWS_ACCOUNT_ID }}|g" backend/k8s/*.yaml
           # sed -i: edita los archivos "in place" (sobreescribe)
           # s|<ACCOUNT_ID>|VALOR|g: reemplaza TODAS las ocurrencias de "<ACCOUNT_ID>"
           # por tu AWS_ACCOUNT_ID real, en TODOS los .yaml de backend/k8s/
