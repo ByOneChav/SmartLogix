@@ -1,39 +1,33 @@
-name: Deploy to EKS                    # Nombre del workflow, aparece en la pestaña Actions de GitHub
+name: Deploy to EKS
 
 # Se ejecuta con push a main O manualmente
 on:
   push:
-    branches: [ AlcindoDev ]           # Se dispara automáticamente con push a la rama "AlcindoDev"
-                                        # (el comentario dice "main" pero apunta a AlcindoDev —
-                                        # podría ser un detalle a aclarar/corregir en tu evaluación)
-  workflow_dispatch:                   # Permite ejecutarlo manualmente desde la pestaña Actions
-                                        # ("Run workflow"), sin necesidad de hacer push
+    branches: [ AlcindoDev ]
+  workflow_dispatch:      # botón manual en GitHub para ejecutar cuando quieras
 
-env:                                    # Variables disponibles en TODOS los jobs/steps
+env:
   AWS_REGION: us-east-1
-  EKS_CLUSTER: smartlogix-cluster       # Nombre del cluster al que se conecta
+  EKS_CLUSTER: smartlogix-cluster
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
-                                        # URL base de tu registro ECR, armada con el AWS_ACCOUNT_ID
-                                        # guardado como secret de GitHub
 
 jobs:
   # ============================================
   # JOB 1: Build de imágenes y push a ECR
   # ============================================
   build-and-push:
-    runs-on: ubuntu-latest               # VM temporal que provee GitHub (no es self-hosted)
+    runs-on: ubuntu-latest
     strategy:
-      matrix:                            # "matrix" ejecuta este job UNA VEZ POR CADA elemento,
-                                          # EN PARALELO → 8 builds simultáneos, uno por servicio
+      matrix:
         include:
-          - service: msvc-config         # Nombre lógico (se usa para el tag de la imagen)
-            context: ./backend            # Carpeta desde donde Docker arma el build
+          - service: msvc-config
+            context: ./backend
             dockerfile: ./backend/msvc-config/Dockerfile
           - service: msvc-eureka
             context: ./backend
             dockerfile: ./backend/msvc-eureka/Dockerfile
-          - service: msvc-authservice     # OJO: "msvc-authservice" (todo minúscula) pero la
-            context: ./backend             # carpeta real es "msvc-authService" (con S mayúscula)
+          - service: msvc-authservice
+            context: ./backend
             dockerfile: ./backend/msvc-authService/Dockerfile
           - service: msvc-pedido
             context: ./backend
@@ -47,15 +41,14 @@ jobs:
           - service: msvc-gateway
             context: ./backend
             dockerfile: ./backend/msvc-gateway/Dockerfile
-          - service: frontend             # Único con contexto distinto: ./frontend
-            context: ./frontend             # (proyecto Angular separado del backend Java)
+          - service: frontend
+            context: ./frontend
             dockerfile: ./frontend/Dockerfile
 
     steps:
       # 1. Descarga el código del repo
       - name: Checkout código
-        uses: actions/checkout@v4         # Clona el repo en el runner para que los pasos
-                                           # siguientes tengan acceso al código fuente
+        uses: actions/checkout@v4
 
       # 2. Configura credenciales de AWS
       - name: Configurar AWS Credentials
@@ -63,106 +56,82 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}     # necesario porque son credenciales temporales (STS)
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
-          # Configura variables de entorno AWS_* para que todo lo que corra después
-          # (CLI, SDKs) use estas credenciales automáticamente
 
       # 3. Login a ECR (como docker login pero para AWS)
       - name: Login a Amazon ECR
-        id: ecr-login                     # identificador del step (por si otro step necesita su output)
+        id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
-        # Usa las credenciales del paso anterior para autenticar Docker contra ECR
-        # (genera un token de docker login temporal)
 
       # 4. Build y push de la imagen
       - name: Build y Push imagen
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.context }}       # toma el valor del matrix para ESTE job paralelo
+          context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
-          push: true                            # construye Y sube la imagen al registro
-          tags: |                               # una imagen puede tener varios "alias"
+          push: true
+          tags: |
             ${{ env.ECR_REGISTRY }}/smartlogix/${{ matrix.service }}:latest
             ${{ env.ECR_REGISTRY }}/smartlogix/${{ matrix.service }}:${{ github.sha }}
 
-
   # ============================================
-  # JOB 2: Deploy a EKS 
+  # JOB 2: Deploy a EKS
   # ============================================
   deploy:
-    needs: build-and-push       # NO arranca hasta que los 8 builds del Job 1 terminen OK
+    needs: build-and-push       # espera a que todas las imágenes se suban
     runs-on: ubuntu-latest
     steps:
       - name: Checkout código
-        uses: actions/checkout@v4   # cada job corre en una VM nueva y vacía: necesitamos
-                                      # de nuevo los archivos backend/k8s/*.yaml de este repo
+        uses: actions/checkout@v4
 
       - name: Configurar AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
-          # Mismas credenciales que en Job 1 — cada job las necesita por separado
 
       # Conectar kubectl al clúster EKS
       - name: Configurar kubeconfig
         run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER }} --region ${{ env.AWS_REGION }}
-        # Descarga el endpoint y certificado del cluster a ~/.kube/config.
-        # A partir de acá "kubectl" sabe a qué cluster hablar, usando IAM auth de EKS
-        # con las credenciales configuradas arriba
 
       # Reemplazar <ACCOUNT_ID> en los manifiestos con el valor real
       - name: Actualizar manifiestos con Account ID
         run: |
           sed -i "s|<ACCOUNT_ID>|${{ secrets.AWS_ACCOUNT_ID }}|g" backend/k8s/*.yaml
-          # sed -i: edita los archivos "in place" (sobreescribe)
-          # s|<ACCOUNT_ID>|VALOR|g: reemplaza TODAS las ocurrencias de "<ACCOUNT_ID>"
-          # por tu AWS_ACCOUNT_ID real, en TODOS los .yaml de backend/k8s/
-          # → esto convierte "<ACCOUNT_ID>.dkr.ecr.us-east-1..." (que vimos en cada
-          # Deployment) en la URL real de tu ECR
 
       # Aplicar manifiestos en orden
       - name: Deploy PostgreSQL
         run: |
-          kubectl apply -f backend/k8s/postgres-secret.yaml          # credenciales de la DB
-          kubectl apply -f backend/k8s/postgres-init-configmap.yaml  # script de inicialización (crear DBs/tablas)
-          kubectl apply -f backend/k8s/postgres-deployment.yaml      # el Pod de Postgres
-          kubectl apply -f backend/k8s/postgres-service.yaml         # Service "postgres:5432"
-        # Va PRIMERO porque todos los microservicios de negocio dependen de la DB
+          kubectl apply -f backend/k8s/postgres-secret.yaml
+          kubectl apply -f backend/k8s/postgres-init-configmap.yaml
+          kubectl apply -f backend/k8s/postgres-deployment.yaml
+          kubectl apply -f backend/k8s/postgres-service.yaml
 
       - name: Esperar PostgreSQL ready
         run: kubectl wait --for=condition=available deployment/postgres --timeout=120s
-        # BLOQUEA hasta que el Deployment "postgres" tenga al menos 1 réplica "Available",
-        # o falla si pasan 120s. Evita que Config Server arranque antes de que la DB exista
 
       - name: Deploy Config Server
         run: |
           kubectl apply -f backend/k8s/config-deployment.yaml
           kubectl apply -f backend/k8s/config-service.yaml
-        # Va después de Postgres porque TODOS los demás servicios dependen de
-        # "http://msvc-config:8888" para obtener su configuración al arrancar
 
       - name: Esperar Config Server ready
         run: kubectl wait --for=condition=available deployment/msvc-config --timeout=180s
-        # Timeout mayor (180s) porque Spring Boot tarda más que Postgres en levantar
 
       - name: Deploy Eureka
         run: |
           kubectl apply -f backend/k8s/eureka-deployment.yaml
           kubectl apply -f backend/k8s/eureka-service.yaml
-        # Eureka también depende de msvc-config, por eso va después de ese
 
       - name: Esperar Eureka ready
         run: kubectl wait --for=condition=available deployment/msvc-eureka --timeout=180s
 
       - name: Deploy Microservicios
         run: |
-          kubectl apply -f backend/k8s/app-secret.yaml          # Secret con DB_PASSWORD/JWT_SECRET
-                                                                   # (se aplica recién acá, justo antes
-                                                                   #  del primer Deployment que lo necesita)
+          kubectl apply -f backend/k8s/app-secret.yaml
           kubectl apply -f backend/k8s/auth-deployment.yaml
           kubectl apply -f backend/k8s/auth-service.yaml
           kubectl apply -f backend/k8s/pedido-deployment.yaml
@@ -171,37 +140,24 @@ jobs:
           kubectl apply -f backend/k8s/inventario-service.yaml
           kubectl apply -f backend/k8s/envio-deployment.yaml
           kubectl apply -f backend/k8s/envio-service.yaml
-        # A diferencia de Config/Eureka, acá NO hay "kubectl wait" entre cada uno:
-        # estos 4 microservicios no dependen entre sí, solo de Postgres/Config/Eureka
-        # (que ya están listos), así que se aplican todos juntos sin esperar
 
       - name: Deploy Gateway
         run: |
           kubectl apply -f backend/k8s/gateway-deployment.yaml
           kubectl apply -f backend/k8s/gateway-service.yaml
-        # Va después de los microservicios porque su función es enrutar tráfico HACIA ellos
-        # (aunque gracias al DNS de k8s, el orden exacto acá no es tan crítico)
 
       - name: Deploy Frontend
         run: |
-          kubectl apply -f backend/k8s/frontend-configmap.yaml   # primero el ConfigMap (config nginx)
-          kubectl apply -f backend/k8s/frontend-deployment.yaml  # luego el Deployment que lo MONTA
-          kubectl apply -f backend/k8s/frontend-service.yaml     # y al final el Service LoadBalancer
-        # Orden importante: el ConfigMap debe existir ANTES de que el Pod intente
-        # montarlo como volumen, o el Pod queda atascado en "ContainerCreating"
+          kubectl apply -f backend/k8s/frontend-configmap.yaml
+          kubectl apply -f backend/k8s/frontend-deployment.yaml
+          kubectl apply -f backend/k8s/frontend-service.yaml
 
       - name: Deploy HPAs (Autoscaling)
         run: |
           for f in backend/k8s/hpa-*.yaml; do kubectl apply -f "$f"; done
-        # Bucle de bash: aplica TODOS los archivos "hpa-*.yaml" (auth, envio, frontend,
-        # gateway, inventario, pedido). Va al final porque cada HPA necesita que su
-        # Deployment objetivo (scaleTargetRef) YA EXISTA en el cluster
 
       - name: Deploy Metrics Server
         run: kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-        # Instala el componente que mide CPU/memoria de cada Pod.
-        # Sin esto, los HPA muestran "cpu: <unknown>/50%" (como vimos en tu primera corrida)
-        # Nota: se aplica desde una URL externa, siempre la versión "latest" disponible
 
       # Actualizar imagen de cada deployment al commit SHA actual
       # K8s detecta el cambio de tag y reinicia SOLO los pods que cambiaron
@@ -215,23 +171,15 @@ jobs:
           kubectl set image deployment/msvc-envio msvc-envio=${{ env.ECR_REGISTRY }}/smartlogix/msvc-envio:${{ github.sha }}
           kubectl set image deployment/msvc-gateway msvc-gateway=${{ env.ECR_REGISTRY }}/smartlogix/msvc-gateway:${{ github.sha }}
           kubectl set image deployment/frontend frontend=${{ env.ECR_REGISTRY }}/smartlogix/frontend:${{ github.sha }}
-        # ¿Por qué hace falta si los manifiestos ya dicen ":latest"?
-        # "kubectl apply" con un Deployment que sigue diciendo ":latest" no siempre
-        # dispara un rolling update (k8s puede no detectar que "cambió algo" si el
-        # texto del tag es idéntico al anterior). Al forzar el tag a "github.sha"
-        # (único por commit), k8s SÍ detecta el cambio y reemplaza los Pods de a uno,
-        # sin downtime, descargando la imagen recién subida en el Job 1
 
       # Verificación final
       - name: Verificar despliegue
         run: |
           echo "=== PODS ==="
-          kubectl get pods                  # estado de cada Pod (Running/Pending), reinicios, edad
+          kubectl get pods
           echo "=== SERVICES ==="
-          kubectl get svc                   # IPs y tipo de cada Service
+          kubectl get svc
           echo "=== HPA ==="
-          kubectl get hpa                   # réplicas actuales y % de CPU de cada autoescalador
+          kubectl get hpa
           echo "=== FRONTEND URL ==="
           kubectl get svc frontend -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
-          # Extrae con JSONPath SOLO el hostname del LoadBalancer del frontend,
-          # para tener la URL pública a mano sin buscarla manualmente
