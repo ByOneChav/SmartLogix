@@ -10,6 +10,9 @@ eureka:
     service-url:
       defaultZone: http://msvc-eureka:8761/eureka
 
+msvc-inventario:
+  url: http://msvc-inventario:8083
+
 app:
   cors:
     allowed-origins: "*"
