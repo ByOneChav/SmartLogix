@@ -28,9 +28,9 @@
         <label>Producto (Inventario)</label>
         <select [(ngModel)]="nuevo.inventarioId" name="inventarioId"
                 (ngModelChange)="onInventarioChange()" required>
-          <option [value]="0" disabled>Selecciona un producto</option>
+          <option [ngValue]="0" disabled>Selecciona un producto</option>
           @for (inv of inventarios; track inv.id) {
-            <option [value]="inv.id">
+            <option [ngValue]="inv.id">
               {{ inv.nombreProducto }} — Stock: {{ inv.stock }}
             </option>
           }
