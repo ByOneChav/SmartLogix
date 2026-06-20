@@ -36,14 +36,6 @@
                  placeholder="••••••••" required>
         </div>
 
-        <div class="mb-3">
-          <label for="rol" class="form-label">Rol</label>
-          <select class="form-control" id="rol" [(ngModel)]="rol" name="rol">
-            <option value="USER">Usuario</option>
-            <option value="ADMIN">Administrador</option>
-          </select>
-        </div>
-
         <button type="submit" class="btn btn-success w-100"
                 [disabled]="loading || !name || !email || !password">
           {{ loading ? 'Registrando...' : 'Crear cuenta' }}

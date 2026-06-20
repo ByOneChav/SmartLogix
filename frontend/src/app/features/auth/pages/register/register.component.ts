@@ -11,7 +11,7 @@ import { AuthService } from '../../services/auth';
   templateUrl: './register.html',
   styleUrl: './register.css'
 })
-export class Register {
+export class RegisterComponent {
   name = '';
   email = '';
   password = '';
@@ -25,7 +25,7 @@ export class Register {
     this.loading = true;
     this.error = '';
 
-    this.authService.register({ name: this.name, email: this.email, password: this.password, rol: this.rol })
+    this.authService.register({ name: this.name, email: this.email, password: this.password })
       .subscribe({
         next: () => {
           this.router.navigate(['/login']);

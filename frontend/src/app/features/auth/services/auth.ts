@@ -17,7 +17,7 @@ export class AuthService {
     return this.http.post<LoginResponseModel>(`${this.apiUrl}/login`, data);
   }
 
-  register(data: { name: string; email: string; password: string; rol: string }): Observable<LoginResponseModel> {
+  register(data: { name: string; email: string; password: string}): Observable<LoginResponseModel> {
     return this.http.post<LoginResponseModel>(`${this.apiUrl}/register`, data);
   }
 
