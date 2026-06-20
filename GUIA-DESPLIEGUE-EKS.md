@@ -461,8 +461,46 @@ GitHub Actions se activa
             |     PostgreSQL -> Config -> Eureka -> Microservicios -> Gateway -> Frontend
             +-- Aplicar HPAs
             +-- Instalar Metrics Server
+            +-- kubectl set image (actualizar imagenes con commit SHA)
             +-- Verificacion final (kubectl get pods/svc/hpa)
 ```
+
+### Rolling Update con Commit SHA
+
+El pipeline usa `kubectl set image` para actualizar cada deployment con el tag del commit SHA actual:
+
+```yaml
+- name: Actualizar imagenes con commit SHA
+  run: |
+    kubectl set image deployment/msvc-config msvc-config=$ECR_REGISTRY/smartlogix/msvc-config:$GITHUB_SHA
+    kubectl set image deployment/msvc-eureka msvc-eureka=$ECR_REGISTRY/smartlogix/msvc-eureka:$GITHUB_SHA
+    kubectl set image deployment/msvc-auth msvc-auth=$ECR_REGISTRY/smartlogix/msvc-authservice:$GITHUB_SHA
+    kubectl set image deployment/msvc-pedido msvc-pedido=$ECR_REGISTRY/smartlogix/msvc-pedido:$GITHUB_SHA
+    kubectl set image deployment/msvc-inventario msvc-inventario=$ECR_REGISTRY/smartlogix/msvc-inventario:$GITHUB_SHA
+    kubectl set image deployment/msvc-envio msvc-envio=$ECR_REGISTRY/smartlogix/msvc-envio:$GITHUB_SHA
+    kubectl set image deployment/msvc-gateway msvc-gateway=$ECR_REGISTRY/smartlogix/msvc-gateway:$GITHUB_SHA
+    kubectl set image deployment/frontend frontend=$ECR_REGISTRY/smartlogix/frontend:$GITHUB_SHA
+```
+
+> **(DEFENSA) Por que se usa el commit SHA como tag de imagen?**
+>
+> Cada imagen se sube a ECR con dos tags: `latest` y el SHA del commit (ej: `a1b2c3d`).
+> Cuando `kubectl set image` cambia el tag del deployment, Kubernetes compara:
+> - Si el SHA es **diferente** al que tiene el pod actual -> reinicia ese pod con la imagen nueva (rolling update)
+> - Si el SHA es **igual** -> no hace nada, el pod sigue corriendo sin interrupcion
+>
+> Esto significa que **solo se reinician los servicios que realmente cambiaron** en ese commit.
+> No se reinicia todo el cluster innecesariamente.
+>
+> Ademas, si algo falla, se puede hacer rollback a una version anterior:
+> ```bash
+> kubectl rollout undo deployment/msvc-pedido
+> ```
+> Esto revierte al tag anterior automaticamente.
+>
+> **Esto es un Zero Downtime Deployment (Rolling Update):**
+> K8s primero crea el pod nuevo, espera a que pase el readinessProbe,
+> y solo entonces mata el pod viejo. En ningun momento hay interrupcion del servicio.
 
 ### GitHub Secrets necesarios
 
