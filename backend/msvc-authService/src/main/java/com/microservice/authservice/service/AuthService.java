@@ -21,27 +21,37 @@ public class AuthService {
     // Registro
     public AuthResponse register(RegisterRequest request) {
 
-        User user = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRol())
-                .build();
+    System.out.println("PASO 1");
 
-        userRepository.save(user);
+    User user = User.builder()
+        .name(request.getName())
+        .email(request.getEmail())
+        .password(passwordEncoder.encode(request.getPassword()))
+        .role(request.getRol())
+        .build();
 
-        return AuthResponse.builder()
-                .token(jwtService.generateToken(user.getEmail()))
-                .user(
-                        UserResponse.builder()
-                                .id(user.getId())
-                                .nombre(user.getName())
-                                .email(user.getEmail())
-                                .rol(user.getRole())
-                                .build()
-                )
-                .build();
-    }
+    System.out.println("PASO 2");
+
+    userRepository.save(user);
+
+    System.out.println("PASO 3");
+
+    String token = jwtService.generateToken(user.getEmail());
+
+    System.out.println("PASO 4");
+
+    return AuthResponse.builder()
+        .token(token)
+        .user(
+            UserResponse.builder()
+                .id(user.getId())
+                .nombre(user.getName())
+                .email(user.getEmail())
+                .rol(user.getRole())
+                .build()
+        )
+        .build();
+}
 
     // Login
     public AuthResponse login(AuthRequest request) {
