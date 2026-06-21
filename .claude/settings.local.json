@@ -6,7 +6,8 @@
       "Bash(npx ng *)",
       "Bash(pip install *)",
       "Bash(python3 -c ' *)",
-      "Bash(python *)"
+      "Bash(python *)",
+      "Bash(grep \"password:\" backend/msvc-config/src/main/resources/configurations/msvc-*-dev.yml)"
     ]
   }
 }
