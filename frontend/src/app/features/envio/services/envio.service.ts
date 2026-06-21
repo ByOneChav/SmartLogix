@@ -14,18 +14,18 @@ export class EnvioService {
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Envio[]> {
-    return this.http.get<Envio[]>(`${this.apiUrl}/all`);
+    return this.http.get<Envio[]>(`${this.apiUrl}/getAllEnvios`);
   }
 
   create(data: Envio): Observable<Envio> {
-    return this.http.post<Envio>(`${this.apiUrl}/create`, data);
+    return this.http.post<Envio>(`${this.apiUrl}/addEnvio`, data);
   }
 
   cambiarEstado(id: number, estado: string): Observable<Envio> {
-    return this.http.put<Envio>(`${this.apiUrl}/update/${id}/estado?estado=${estado}`, {});
+    return this.http.put<Envio>(`${this.apiUrl}/updEstadoEnvio/${id}?estado=${estado}`, {});
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/delete/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/delEnvio/${id}`);
   }
 }

@@ -15,6 +15,6 @@ public interface PedidoClient {
     /**
      * Obtiene estudiantes por courseId desde otro microservicio
      */
-    @GetMapping("/api/pedido/search-by-inventario/{inventarioId}")
+    @GetMapping("/api/pedido/getPedidosByInventario/{inventarioId}")
     List<PedidoDTO> findAllProductoByInventario(@PathVariable Long inventarioId);
 }

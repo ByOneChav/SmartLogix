@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.*;
 @FeignClient(name = "msvc-inventario", url = "${msvc-inventario.url:}")
 public interface InventarioClient {
 
-    @GetMapping("/api/inventario/{id}")
+    @GetMapping("/api/inventario/getInventario/{id}")
     InventarioDTO findById(@PathVariable("id") Long id);
 
-    @PutMapping("/api/inventario/{id}/descontar-stock")
+    @PutMapping("/api/inventario/updDescontarStock/{id}")
     void descontarStock(@PathVariable("id") Long id, @RequestParam("cantidad") Integer cantidad);
 }

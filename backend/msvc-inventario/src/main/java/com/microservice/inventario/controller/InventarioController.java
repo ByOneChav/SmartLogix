@@ -32,7 +32,7 @@ public class InventarioController {
     /**
      * LISTAR INVENTARIO
      */
-    @GetMapping
+    @GetMapping("/getAllInventario")
     @Operation(summary = "Listar inventario", description = "Devuelve una lista completa de todos los productos registrados en el inventario.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Inventario obtenido correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Inventario.class))),
@@ -45,7 +45,7 @@ public class InventarioController {
     /**
      * BUSCAR POR ID
      */
-    @GetMapping("/{id}")
+    @GetMapping("/getInventario/{id}")
     @Operation(summary = "Buscar inventario por ID", description = "Obtiene la información de un producto específico mediante su ID.")
     @Parameter(name = "id", description = "ID del inventario", required = true, in = ParameterIn.PATH)
     @ApiResponses(value = {
@@ -63,7 +63,7 @@ public class InventarioController {
     /**
      * CREAR INVENTARIO
      */
-    @PostMapping
+    @PostMapping("/addInventario")
     @Operation(summary = "Crear inventario", description = "Registra un nuevo producto dentro del inventario.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Inventario creado correctamente", content = @Content(schema = @Schema(implementation = Inventario.class))),
@@ -84,7 +84,7 @@ public class InventarioController {
     /**
      * ACTUALIZAR INVENTARIO
      */
-    @PutMapping("/{id}")
+    @PutMapping("/updInventario/{id}")
     @Operation(summary = "Actualizar inventario", description = "Actualiza los datos de un producto existente en el inventario.")
     @Parameter(name = "id", description = "ID del inventario a actualizar", required = true, in = ParameterIn.PATH)
     @ApiResponses(value = {
@@ -105,7 +105,7 @@ public class InventarioController {
     /**
      * BAJA LÓGICA DE INVENTARIO
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delInventario/{id}")
     @Operation(summary = "Dar de baja inventario", description = "Desactiva un producto del inventario (baja lógica). El registro se conserva en base de datos con activo=false.")
     @Parameter(name = "id", description = "ID del inventario a desactivar", required = true, in = ParameterIn.PATH)
     @ApiResponses(value = {
@@ -124,7 +124,7 @@ public class InventarioController {
     /**
      * DESCONTAR STOCK — Consumido por msvc-pedido via Feign
      */
-    @PutMapping("/{id}/descontar-stock")
+    @PutMapping("/updDescontarStock/{id}")
     @Operation(summary = "Descontar stock", description = "Descuenta la cantidad indicada del stock. Llamado internamente por msvc-pedido via Feign al crear un pedido.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Stock descontado correctamente"),
@@ -143,7 +143,7 @@ public class InventarioController {
     /**
      * OBTENER PEDIDOS ASOCIADOS
      */
-    @GetMapping("/pedido/{inventarioId}")
+    @GetMapping("/getPedidosByInventario/{inventarioId}")
     @Operation(summary = "Obtener pedidos por inventario", description = "Consulta los pedidos asociados a un producto del inventario mediante integración con el microservicio de pedidos.")
     @Parameter(name = "inventarioId", description = "ID del inventario", required = true, in = ParameterIn.PATH)
     @ApiResponses(value = {

@@ -30,13 +30,13 @@ public class EnvioController {
         this.envioService = envioService;
     }
 
-    @GetMapping("/all")
+    @GetMapping("/getAllEnvios")
     @Operation(summary = "Listar todos los envíos")
     public ResponseEntity<List<Envio>> findAll() {
         return ResponseEntity.ok(envioService.findAll());
     }
 
-    @GetMapping("/search/{id}")
+    @GetMapping("/getEnvio/{id}")
     @Operation(summary = "Buscar envío por ID")
     public ResponseEntity<?> findById(@PathVariable Long id) {
         try {
@@ -46,7 +46,7 @@ public class EnvioController {
         }
     }
 
-    @PostMapping("/create")
+    @PostMapping("/addEnvio")
     @Operation(
         summary = "Crear envío desde un pedido",
         description = "Registra el despacho de un pedido. Estado inicial: PREPARANDO."
@@ -64,7 +64,7 @@ public class EnvioController {
         }
     }
 
-    @PutMapping("/update/{id}/estado")
+    @PutMapping("/updEstadoEnvio/{id}")
     @Operation(
         summary = "Cambiar estado del envío",
         description = "Transiciones: PREPARANDO → EN_TRANSITO → ENTREGADO. También puede pasar a DEVUELTO."
@@ -79,7 +79,7 @@ public class EnvioController {
         }
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/updEnvio/{id}")
     @Operation(summary = "Actualizar dirección de destino del envío")
     public ResponseEntity<?> updateEnvio(@PathVariable Long id, @RequestBody Envio envio) {
         try {
@@ -89,7 +89,7 @@ public class EnvioController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/delEnvio/{id}")
     @Operation(summary = "Eliminar envío")
     public ResponseEntity<?> deleteEnvio(@PathVariable Long id) {
         try {
@@ -100,7 +100,7 @@ public class EnvioController {
         }
     }
 
-    @GetMapping("/search-by-pedido/{pedidoId}")
+    @GetMapping("/getEnviosByPedido/{pedidoId}")
     @Operation(summary = "Buscar envíos por pedidoId")
     public ResponseEntity<List<Envio>> findByPedido(@PathVariable Long pedidoId) {
         return ResponseEntity.ok(envioService.findByPedidoId(pedidoId));

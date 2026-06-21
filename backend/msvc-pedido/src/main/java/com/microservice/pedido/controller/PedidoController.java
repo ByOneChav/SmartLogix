@@ -29,13 +29,13 @@ public class PedidoController {
         this.pedidoService = pedidoService;
     }
 
-    @GetMapping("/all")
+    @GetMapping("/getAllPedidos")
     @Operation(summary = "Listar todos los pedidos")
     public ResponseEntity<List<Pedido>> findAll() {
         return ResponseEntity.ok(pedidoService.findAll());
     }
 
-    @GetMapping("/search/{id}")
+    @GetMapping("/getPedido/{id}")
     @Operation(summary = "Buscar pedido por ID")
     public ResponseEntity<?> findById(@PathVariable Long id) {
         try {
@@ -45,7 +45,7 @@ public class PedidoController {
         }
     }
 
-    @PostMapping("/create")
+    @PostMapping("/addPedido")
     @Operation(
         summary = "Crear pedido con validación de stock",
         description = "Consulta inventario via Feign, valida stock, lo descuenta y registra el pedido en estado PENDIENTE."
@@ -63,7 +63,7 @@ public class PedidoController {
         }
     }
 
-    @PutMapping("/update/{id}/estado")
+    @PutMapping("/updEstadoPedido/{id}")
     @Operation(
         summary = "Cambiar estado del pedido",
         description = "Transiciones: PENDIENTE → CONFIRMADO → EN_PREPARACION → ENVIADO → ENTREGADO. Cancelar: → CANCELADO."
@@ -78,7 +78,7 @@ public class PedidoController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/delPedido/{id}")
     @Operation(summary = "Eliminar pedido")
     public ResponseEntity<?> deletePedido(@PathVariable Long id) {
         try {
@@ -89,7 +89,7 @@ public class PedidoController {
         }
     }
 
-    @GetMapping("/search-by-inventario/{inventarioId}")
+    @GetMapping("/getPedidosByInventario/{inventarioId}")
     @Operation(summary = "Buscar pedidos por inventarioId")
     public ResponseEntity<List<Pedido>> findByInventario(@PathVariable Long inventarioId) {
         return ResponseEntity.ok(pedidoService.findByInventarioId(inventarioId));
