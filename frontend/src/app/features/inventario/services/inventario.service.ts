@@ -14,18 +14,18 @@ export class InventarioService {
   constructor(private http: HttpClient) { }
 
   getAll(): Observable<Inventario[]> {
-    return this.http.get<Inventario[]>(this.apiUrl);
+    return this.http.get<Inventario[]>(`${this.apiUrl}/getAllInventario`);
   }
 
   create(data: Inventario): Observable<Inventario> {
-    return this.http.post<Inventario>(this.apiUrl, data);
+    return this.http.post<Inventario>(`${this.apiUrl}/addInventario`, data);
   }
 
   update(id: number, data: Inventario): Observable<Inventario> {
-    return this.http.put<Inventario>(`${this.apiUrl}/${id}`, data);
+    return this.http.put<Inventario>(`${this.apiUrl}/updInventario/${id}`, data);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/delInventario/${id}`);
   }
 }

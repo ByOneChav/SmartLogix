@@ -12,6 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "msvc-pedido", url = "${msvc-pedido.url:}")
 public interface PedidoClient {
 
-    @PutMapping("/api/pedido/update/{id}/estado")
+    @PutMapping("/api/pedido/updEstadoPedido/{id}")
     void cambiarEstado(@PathVariable("id") Long id, @RequestParam("estado") String estado);
 }

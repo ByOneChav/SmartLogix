@@ -48,7 +48,7 @@ public class PruebaTestEnvio {
 
         when(envioService.findAll()).thenReturn(List.of(envio));
 
-        mockMvc.perform(get("/api/envio/all"))
+        mockMvc.perform(get("/api/envio/getAllEnvios"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].pedidoId").value(10L))
@@ -70,7 +70,7 @@ public class PruebaTestEnvio {
 
         when(envioService.findById(1L)).thenReturn(envio);
 
-        mockMvc.perform(get("/api/envio/search/1"))
+        mockMvc.perform(get("/api/envio/getEnvio/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.pedidoId").value(10L));
@@ -90,7 +90,7 @@ public class PruebaTestEnvio {
 
         when(envioService.crearEnvio(any(EnvioDTO.class))).thenReturn(guardado);
 
-        mockMvc.perform(post("/api/envio/create")
+        mockMvc.perform(post("/api/envio/addEnvio")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -118,7 +118,7 @@ public class PruebaTestEnvio {
 
         when(envioService.cambiarEstado(1L, EstadoEnvio.EN_TRANSITO)).thenReturn(envio);
 
-        mockMvc.perform(put("/api/envio/update/1/estado")
+        mockMvc.perform(put("/api/envio/updEstadoEnvio/1")
                         .param("estado", "EN_TRANSITO"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.estado").value("EN_TRANSITO"));
@@ -128,7 +128,7 @@ public class PruebaTestEnvio {
 
     @Test
     void deleteEnvioReturnsOk() throws Exception {
-        mockMvc.perform(delete("/api/envio/delete/1"))
+        mockMvc.perform(delete("/api/envio/delEnvio/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Envío eliminado correctamente"));
 

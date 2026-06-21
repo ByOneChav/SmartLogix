@@ -14,18 +14,18 @@ export class PedidoService {
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Pedido[]> {
-    return this.http.get<Pedido[]>(`${this.apiUrl}/all`);
+    return this.http.get<Pedido[]>(`${this.apiUrl}/getAllPedidos`);
   }
 
   create(data: Pedido): Observable<Pedido> {
-    return this.http.post<Pedido>(`${this.apiUrl}/create`, data);
+    return this.http.post<Pedido>(`${this.apiUrl}/addPedido`, data);
   }
 
   cambiarEstado(id: number, estado: string): Observable<Pedido> {
-    return this.http.put<Pedido>(`${this.apiUrl}/update/${id}/estado?estado=${estado}`, {});
+    return this.http.put<Pedido>(`${this.apiUrl}/updEstadoPedido/${id}?estado=${estado}`, {});
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/delete/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/delPedido/${id}`);
   }
 }
