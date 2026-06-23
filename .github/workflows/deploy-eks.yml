@@ -50,7 +50,6 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-
       # 2. Configura credenciales de AWS
       - name: Configurar AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
