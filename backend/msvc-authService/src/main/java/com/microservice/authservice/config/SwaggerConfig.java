@@ -19,7 +19,8 @@ public class SwaggerConfig {
         return new OpenAPI()
 
                 // 🌐 Define el Gateway como punto de entrada (NO el microservicio)
-                .addServersItem(new Server().url("http://localhost:8080"))
+                // .addServersItem(new Server().url("http://localhost:8080"))
+                
 
                 // 🔐 Configuración de seguridad JWT para Swagger
                 .components(new Components()

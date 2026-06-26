@@ -19,6 +19,35 @@ spring:
           predicates:
             - Path=/api/envio/**
 
+        # ── Swagger por microservicio ─────────────────────
+        - id: swagger-auth
+          uri: http://msvc-auth:8081
+          predicates:
+            - Path=/swagger/auth/**
+          filters:
+            - StripPrefix=2
+
+        - id: swagger-inventario
+          uri: http://msvc-inventario:8083
+          predicates:
+            - Path=/swagger/inventario/**
+          filters:
+            - StripPrefix=2
+
+        - id: swagger-pedido
+          uri: http://msvc-pedido:8082
+          predicates:
+            - Path=/swagger/pedido/**
+          filters:
+            - StripPrefix=2
+
+        - id: swagger-envio
+          uri: http://msvc-envio:8084
+          predicates:
+            - Path=/swagger/envio/**
+          filters:
+            - StripPrefix=2
+
 eureka:
   client:
     register-with-eureka: true
