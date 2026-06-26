@@ -13,7 +13,10 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .addServersItem(new Server().url("http://localhost:8080"))
+                // .addServersItem(new Server().url("http://localhost:8080"))
+
+                .addServersItem(new Server().url(
+			"http://a2850c58b6f0645c68b69e13789d93ed-722508749.us-east-1.elb.amazonaws.com"))
                 .info(
                         new Info()
                                 .title("Envio Service - SMARTLOGIX")

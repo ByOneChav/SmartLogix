@@ -13,38 +13,39 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
-    @Bean
-    public OpenAPI customOpenAPI() {
+	@Bean
+	public OpenAPI customOpenAPI() {
 
-        return new OpenAPI()
+		return new OpenAPI()
 
-                // 🌐 Define el Gateway como punto de entrada (NO el microservicio)
-                // .addServersItem(new Server().url("http://localhost:8080"))
-                
+				// 🌐 Define el Gateway como punto de entrada (NO el microservicio)
+				// .addServersItem(new Server().url("http://localhost:8080"))
 
-                // 🔐 Configuración de seguridad JWT para Swagger
-                .components(new Components()
-                        .addSecuritySchemes("BearerAuth",
-                                new SecurityScheme()
-                                        .name("Authorization") // Header esperado
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer") // Tipo Bearer
-                                        .bearerFormat("JWT") // Formato JWT
-                        )
-                )
+				.addServersItem(new Server().url(
+					"http://a2850c58b6f0645c68b69e13789d93ed-722508749.us-east-1.elb.amazonaws.com"))
 
-                // 🔒 Aplica seguridad global (aparece botón "Authorize")
-                .addSecurityItem(new SecurityRequirement().addList("BearerAuth"))
+				// 🔐 Configuración de seguridad JWT para Swagger
+				.components(new Components()
+						.addSecuritySchemes("BearerAuth",
+								new SecurityScheme()
+										.name("Authorization") // Header esperado
+										.type(SecurityScheme.Type.HTTP)
+										.scheme("bearer") // Tipo Bearer
+										.bearerFormat("JWT") // Formato JWT
+						))
 
-                // 📝 Información de la API
-                .info(new Info()
-                        .title("Auth Service - SMARTLOGIX")
-                        .version("5.0")
-                        .description("""
-                                Servicio encargado de:
-                                - Registro de usuarios
-                                - Autenticación (login)
-                                - Generación de tokens JWT
-                                """));
-    }
+				// 🔒 Aplica seguridad global (aparece botón "Authorize")
+				.addSecurityItem(new SecurityRequirement().addList("BearerAuth"))
+
+				// 📝 Información de la API
+				.info(new Info()
+						.title("Auth Service - SMARTLOGIX")
+						.version("5.0")
+						.description("""
+								Servicio encargado de:
+								- Registro de usuarios
+								- Autenticación (login)
+								- Generación de tokens JWT
+								"""));
+	}
 }
