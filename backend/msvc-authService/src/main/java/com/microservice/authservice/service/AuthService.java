@@ -4,6 +4,9 @@ import com.microservice.authservice.dto.*;
 import com.microservice.authservice.model.User;
 import com.microservice.authservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,37 +24,36 @@ public class AuthService {
     // Registro
     public AuthResponse register(RegisterRequest request) {
 
-    System.out.println("PASO 1");
+        System.out.println("PASO 1");
 
-    User user = User.builder()
-        .name(request.getName())
-        .email(request.getEmail())
-        .password(passwordEncoder.encode(request.getPassword()))
-        .role(request.getRol())
-        .build();
+        User user = User.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(request.getRol())
+                .build();
 
-    System.out.println("PASO 2");
+        System.out.println("PASO 2");
 
-    userRepository.save(user);
+        userRepository.save(user);
 
-    System.out.println("PASO 3");
+        System.out.println("PASO 3");
 
-    String token = jwtService.generateToken(user.getEmail());
+        String token = jwtService.generateToken(user.getEmail());
 
-    System.out.println("PASO 4");
+        System.out.println("PASO 4");
 
-    return AuthResponse.builder()
-        .token(token)
-        .user(
-            UserResponse.builder()
-                .id(user.getId())
-                .nombre(user.getName())
-                .email(user.getEmail())
-                .rol(user.getRole())
-                .build()
-        )
-        .build();
-}
+        return AuthResponse.builder()
+                .token(token)
+                .user(
+                        UserResponse.builder()
+                                .id(user.getId())
+                                .nombre(user.getName())
+                                .email(user.getEmail())
+                                .rol(user.getRole())
+                                .build())
+                .build();
+    }
 
     // Login
     public AuthResponse login(AuthRequest request) {
@@ -71,8 +73,30 @@ public class AuthService {
                                 .nombre(user.getName())
                                 .email(user.getEmail())
                                 .rol(user.getRole())
-                                .build()
-                )
+                                .build())
+                .build();
+    }
+
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(user -> UserResponse.builder()
+                        .id(user.getId())
+                        .nombre(user.getName())
+                        .email(user.getEmail())
+                        .rol(user.getRole())
+                        .build())
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public UserResponse getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return UserResponse.builder()
+                .id(user.getId())
+                .nombre(user.getName())
+                .email(user.getEmail())
+                .rol(user.getRole())
                 .build();
     }
 }

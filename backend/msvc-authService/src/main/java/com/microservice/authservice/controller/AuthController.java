@@ -8,9 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Controlador de autenticación
- */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -20,7 +17,7 @@ public class AuthController {
     private final AuthService authService;
 
     /**
-     * 🔐 Registro de usuario
+     * Registro de usuario
      */
     @Operation(
             summary = "Registrar usuario",
@@ -36,7 +33,7 @@ public class AuthController {
     }
 
     /**
-     * 🔐 Login
+     * Login
      */
     @Operation(
             summary = "Login usuario",
@@ -49,5 +46,37 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@RequestBody AuthRequest request) {
         return authService.login(request);
+    }
+
+    /**
+     * Obtener todos los usuarios
+     */
+    @Operation(
+            summary = "Obtener todos los usuarios",
+            description = "Retorna una lista de todos los usuarios registrados en el sistema"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuarios obtenidos correctamente"),
+            @ApiResponse(responseCode = "403", description = "No autorizado")
+    })
+    @GetMapping("/users")
+    public java.util.List<UserResponse> getAllUsers() {
+        return authService.getAllUsers();
+    }
+
+    /**
+     * Buscar usuario por ID
+     */
+    @Operation(
+            summary = "Buscar usuario por ID",
+            description = "Obtiene la información de un usuario específico mediante su ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    @GetMapping("/users/{id}")
+    public UserResponse getUserById(@PathVariable Long id) {
+        return authService.getUserById(id);
     }
 }
